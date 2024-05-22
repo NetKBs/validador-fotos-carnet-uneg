@@ -2,5 +2,5 @@
 - facenet_pytorch
 - numpy
 - matplotlib
-- PIL
+- pillow
 - scipy
