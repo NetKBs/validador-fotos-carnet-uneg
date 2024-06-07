@@ -1,5 +1,6 @@
 # Set de imagenes de prueba
 imagenes/
+demo/images
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
