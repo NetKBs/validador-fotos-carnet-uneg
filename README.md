@@ -17,6 +17,8 @@ Para la ejecución del proyecto se necesitan las siguientes dependencias
 - matplotlib `opcional` `requerido en la demo`
 - pillow
 - scipy
+- tqdm
+- tkinter
 
 
 
