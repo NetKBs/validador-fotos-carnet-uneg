@@ -80,8 +80,10 @@ def main(device, path_faces, path_cis):
     encoder = InceptionResnetV1(pretrained='vggface2', classify=False, device=device).eval()
     faces_embeddings = []
     for faces in tqdm(faces_extracted, desc="Obteniendo embeddings"):
-        embedding_face = encoder(faces[0].unsqueeze(0)).detach().cpu()
-        embedding_ci = encoder(faces[1].unsqueeze(0)).detach().cpu()
+        embedding_face = encoder.forward(faces[0].reshape((1, 3, 160, 160))).detach().cpu()
+        embedding_ci = encoder.forward(faces[1].reshape((1, 3, 160, 160))).detach().cpu()
+        #embedding_face = encoder(faces[0].unsqueeze(0)).detach().cpu()
+        #embedding_ci = encoder(faces[1].unsqueeze(0)).detach().cpu()
         faces_embeddings.append([embedding_face, embedding_ci])
 
     # Obtener distancia euclidiana
