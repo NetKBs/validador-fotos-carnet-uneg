@@ -1,3 +1,5 @@
+# main.py
+
 import sys
 import os
 from PIL import Image
@@ -6,8 +8,10 @@ import torch
 from facenet_pytorch import MTCNN, InceptionResnetV1
 from scipy.spatial.distance import euclidean
 from tqdm import tqdm
-import modulos.ruta_directorio as rd
-
+import cv2
+import numpy as np
+import modulos.ruta_directorio as rd 
+import modulos.fondo_blanco as fd 
 
 # Mostrar resultados en la UI =====================
 def showResultsUI(results):
@@ -27,14 +31,13 @@ def showResultsUI(results):
 
 
 def main(device, path_faces, path_cis):
-
     mtcnn = MTCNN(
-            select_largest=True,
-            min_face_size=5,
-            thresholds=[0.6, 0.7, 0.7],
-            post_process=False,
-            image_size=160,
-            device=device
+        select_largest=True,
+        min_face_size=5,
+        thresholds=[0.6, 0.7, 0.7],
+        post_process=False,
+        image_size=160,
+        device=device
     )
 
     # Obtener pares de imágenes
@@ -54,17 +57,31 @@ def main(device, path_faces, path_cis):
 
     # Extraer rostros
     faces_extracted = []
-    for imgs in tqdm(images, desc="Extrayendo rostros"):
-        face_crop = mtcnn.forward(imgs[0])
-        ci_crop = mtcnn.forward(imgs[1])
-        faces_extracted.append([face_crop, ci_crop])
+    valid_images = []
+    for i, imgs in enumerate(tqdm(images, desc="Extrayendo rostros")):
+        face_crop = mtcnn(imgs[0])
+        ci_crop = mtcnn(imgs[1])
+        if face_crop is not None:
+            face_boxes, _ = mtcnn.detect(imgs[0])
+            if face_boxes is not None:
+                face_box = face_boxes[0]
+                # checamos si la imagen tiene fondo blanco
+                if fd.is_white_background(cv2.cvtColor(np.array(imgs[0]), cv2.COLOR_RGB2BGR), face_box):
+                    faces_extracted.append([face_crop, ci_crop])
+                    valid_images.append(imgs)
+                else:
+                    print(f"La imagen {faces_cis_paths[i][0]} no tiene fondo blanco")
+            else:
+                print(f"No se pudo detectar el rostro en la imagen {faces_cis_paths[i][0]}")
+        else:
+            print(f"No se pudo detectar el rostro en la imagen {faces_cis_paths[i][0]}")
 
     # Obtener embeddings de las caras
     encoder = InceptionResnetV1(pretrained='vggface2', classify=False, device=device).eval()
     faces_embeddings = []
     for faces in tqdm(faces_extracted, desc="Obteniendo embeddings"):
-        embedding_face = encoder.forward(faces[0].reshape((1, 3, 160, 160))).detach().cpu()
-        embedding_ci = encoder.forward(faces[1].reshape((1, 3, 160, 160))).detach().cpu()
+        embedding_face = encoder(faces[0].unsqueeze(0)).detach().cpu()
+        embedding_ci = encoder(faces[1].unsqueeze(0)).detach().cpu()
         faces_embeddings.append([embedding_face, embedding_ci])
 
     # Obtener distancia euclidiana
@@ -88,4 +105,3 @@ if __name__ == "__main__":
     path_cis = rd.select_folder("Seleccione la carpeta de fotos de cédulas")
 
     main(device, path_faces, path_cis)
-
