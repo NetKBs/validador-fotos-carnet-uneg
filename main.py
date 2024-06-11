@@ -1,5 +1,4 @@
 # main.py
-
 import sys
 import os
 from PIL import Image
@@ -12,6 +11,7 @@ import cv2
 import numpy as np
 import modulos.ruta_directorio as rd 
 import modulos.fondo_blanco as fd 
+import modulos.deteccion_rostro_humano as drh
 
 # Mostrar resultados en la UI =====================
 def showResultsUI(results):
@@ -29,7 +29,6 @@ def showResultsUI(results):
         fig.text(0.5, 0.04, msg_result, ha='center')
         plt.show()
 
-
 def main(device, path_faces, path_cis):
     mtcnn = MTCNN(
         select_largest=True,
@@ -39,6 +38,9 @@ def main(device, path_faces, path_cis):
         image_size=160,
         device=device
     )
+
+    # Cargar modelo de clasificación para detectar rostros humanos
+    classification_model, transform = drh.cargar_modelo(device)
 
     # Obtener pares de imágenes
     faces_cis_paths = []
@@ -62,17 +64,20 @@ def main(device, path_faces, path_cis):
         face_crop = mtcnn(imgs[0])
         ci_crop = mtcnn(imgs[1])
         if face_crop is not None:
-            face_boxes, _ = mtcnn.detect(imgs[0])
-            if face_boxes is not None:
-                face_box = face_boxes[0]
-                # checamos si la imagen tiene fondo blanco
-                if fd.is_white_background(cv2.cvtColor(np.array(imgs[0]), cv2.COLOR_RGB2BGR), face_box):
-                    faces_extracted.append([face_crop, ci_crop])
-                    valid_images.append(imgs)
+            if drh.es_rostro_humano(imgs[0], classification_model, transform, device):
+                face_boxes, _ = mtcnn.detect(imgs[0])
+                if face_boxes is not None:
+                    face_box = face_boxes[0]
+                    # checamos si la imagen tiene fondo blanco
+                    if fd.is_white_background(cv2.cvtColor(np.array(imgs[0]), cv2.COLOR_RGB2BGR), face_box):
+                        faces_extracted.append([face_crop, ci_crop])
+                        valid_images.append(imgs)
+                    else:
+                        print(f"La imagen {faces_cis_paths[i][0]} no tiene fondo blanco")
                 else:
-                    print(f"La imagen {faces_cis_paths[i][0]} no tiene fondo blanco")
+                    print(f"No se pudo detectar el rostro en la imagen {faces_cis_paths[i][0]}")
             else:
-                print(f"No se pudo detectar el rostro en la imagen {faces_cis_paths[i][0]}")
+                print(f"La imagen {faces_cis_paths[i][0]} no contiene un rostro humano")
         else:
             print(f"No se pudo detectar el rostro en la imagen {faces_cis_paths[i][0]}")
 
@@ -82,8 +87,6 @@ def main(device, path_faces, path_cis):
     for faces in tqdm(faces_extracted, desc="Obteniendo embeddings"):
         embedding_face = encoder.forward(faces[0].reshape((1, 3, 160, 160))).detach().cpu()
         embedding_ci = encoder.forward(faces[1].reshape((1, 3, 160, 160))).detach().cpu()
-        #embedding_face = encoder(faces[0].unsqueeze(0)).detach().cpu()
-        #embedding_ci = encoder(faces[1].unsqueeze(0)).detach().cpu()
         faces_embeddings.append([embedding_face, embedding_ci])
 
     # Obtener distancia euclidiana
@@ -97,7 +100,6 @@ def main(device, path_faces, path_cis):
 
     showResultsUI(results)
 
-
 if __name__ == "__main__":
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print('Running on device: {}'.format(device))
@@ -107,3 +109,4 @@ if __name__ == "__main__":
     path_cis = rd.select_folder("Seleccione la carpeta de fotos de cédulas")
 
     main(device, path_faces, path_cis)
+
