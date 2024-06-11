@@ -1,6 +1,9 @@
 # Set de imagenes de prueba
 imagenes/
+images/
 demo/images
+
+*.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
