@@ -7,23 +7,24 @@ import re
 import modulos.manejador_de_errores as M_ERRORS
 
 def proccessImage(img):
-    """
-        Redimensiona una imagen a un tamaño específico y devuelve la imagen redimensionada.
-
-        Parámetros:
-            img (PIL.Image.Image): La imagen de entrada que se va a redimensionar.
-
-        Retorna:
-            PIL.Image.Image: La imagen redimensionada.
-    """
+    
     sizes = (160, 160)
+    img = img.convert("RGB")
+    exif = img.getexif()
+    orientation = exif.get(274, 1)  # Valor predeterminado: 1 (sin rotación)
+
+    if orientation == 3:
+        img = img.rotate(180, expand=True)
+    elif orientation == 6:
+        img = img.rotate(270, expand=True)
+    elif orientation == 8:
+        img = img.rotate(90, expand=True)
+
     image_resize = img.resize((sizes), Image.LANCZOS)
     buffer = BytesIO()
     image_resize.save(buffer, format="PNG")
-    image_bytes = buffer.getvalue()
-    image = Image.open(buffer)
-
-    return image
+  
+    return Image.open(buffer)
 
 def openImages(face_path, ci_path):
     """
@@ -102,7 +103,8 @@ def loadImages(faces_path, cis_path):
        result = openImages(faces_path + '/' + list_faces[file], cis_path + '/' + list_cis[file])
        face_proccessed = proccessImage(result[0])
        ci_proccessed = proccessImage(result[1])
-       list_pair.append({"face:" : [face_proccessed, list_faces[file]], "ci":[ci_proccessed, list_cis[file]]})
+       list_pair.append({"face" : [face_proccessed, list_faces[file]], "ci":[ci_proccessed, list_cis[file]]})
+       #list_pair.append({"face" : [result[0], list_faces[file]], "ci":[result[1], list_cis[file]]})
 
     return list_pair
     
