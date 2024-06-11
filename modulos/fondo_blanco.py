@@ -3,7 +3,7 @@
 import cv2
 import numpy as np
 
-def is_white_background(image, face_box):
+def isWhiteBackground(image, face_box):
     """
     Determina si el fondo de una imagen es blanco o casi blanco, excluyendo las áreas de la cara y la camisa.
 
@@ -31,9 +31,6 @@ def is_white_background(image, face_box):
     white_pixels = cv2.countNonZero(mask)
     total_pixels = image.shape[0] * image.shape[1] - (x2 - x1) * (y2 - y1)
     white_ratio = white_pixels / total_pixels
-
-    # Imprimir white_ratio para la imagen actual
-    #print(f"White ratio for the current image: {white_ratio}")
 
     # Determine if the background is predominantly white
     return white_ratio > 0.3 # lo correcto es 0.5 pendiente 
