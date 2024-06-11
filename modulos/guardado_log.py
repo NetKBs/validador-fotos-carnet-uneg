@@ -8,7 +8,7 @@ def saveInLog(data):
         initLog()
     """
     if not os.path.exists("log.txt"):
-        iniciarLog()
+        initLog()
 
     with open("log.txt", "a") as f:
         f.write(data+"\n")
