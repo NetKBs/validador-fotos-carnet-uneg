@@ -1,0 +1,39 @@
+# Fondo_blanco.py
+
+import cv2
+import numpy as np
+
+def is_white_background(image, face_box):
+    """
+    Determina si el fondo de una imagen es blanco o casi blanco, excluyendo las áreas de la cara y la camisa.
+
+    Parámetros:
+    - imagen: la imagen de entrada como una matriz NumPy.
+    - face_box: el cuadro delimitador de la cara (x1, y1, x2, y2).
+
+    Devoluciones:
+    - Verdadero si el fondo es blanco o casi blanco; Falso en caso contrario.
+    """
+    # Definir umbrales para el color blanco.
+    
+    #Aqui es donde se puede definir bien los grises de la imagen
+    lower_white = np.array([200, 200, 200], dtype=np.uint8)
+    upper_white = np.array([255, 255, 255], dtype=np.uint8)
+
+    # Create a mask for white colors
+    mask = cv2.inRange(image, lower_white, upper_white)
+
+    # Exclude the face area
+    x1, y1, x2, y2 = map(int, face_box)
+    cv2.rectangle(mask, (x1, y1), (x2, y2), 0, -1)
+
+    # Calculate the percentage of white pixels
+    white_pixels = cv2.countNonZero(mask)
+    total_pixels = image.shape[0] * image.shape[1] - (x2 - x1) * (y2 - y1)
+    white_ratio = white_pixels / total_pixels
+
+    # Imprimir white_ratio para la imagen actual
+    #print(f"White ratio for the current image: {white_ratio}")
+
+    # Determine if the background is predominantly white
+    return white_ratio > 0.3 # lo correcto es 0.5 pendiente 

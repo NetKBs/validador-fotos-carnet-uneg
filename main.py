@@ -1,3 +1,4 @@
+# main.py
 import sys
 import os
 from PIL import Image
@@ -6,8 +7,11 @@ import torch
 from facenet_pytorch import MTCNN, InceptionResnetV1
 from scipy.spatial.distance import euclidean
 from tqdm import tqdm
-import modulos.ruta_directorio as rd
-
+import cv2
+import numpy as np
+import modulos.ruta_directorio as rd 
+import modulos.fondo_blanco as fd 
+import modulos.deteccion_rostro_humano as drh
 
 # Mostrar resultados en la UI =====================
 def showResultsUI(results):
@@ -25,17 +29,18 @@ def showResultsUI(results):
         fig.text(0.5, 0.04, msg_result, ha='center')
         plt.show()
 
-
 def main(device, path_faces, path_cis):
-
     mtcnn = MTCNN(
-            select_largest=True,
-            min_face_size=5,
-            thresholds=[0.6, 0.7, 0.7],
-            post_process=False,
-            image_size=160,
-            device=device
+        select_largest=True,
+        min_face_size=5,
+        thresholds=[0.6, 0.7, 0.7],
+        post_process=False,
+        image_size=160,
+        device=device
     )
+
+    # Cargar modelo de clasificación para detectar rostros humanos
+    classification_model, transform = drh.cargar_modelo(device)
 
     # Obtener pares de imágenes
     faces_cis_paths = []
@@ -54,10 +59,27 @@ def main(device, path_faces, path_cis):
 
     # Extraer rostros
     faces_extracted = []
-    for imgs in tqdm(images, desc="Extrayendo rostros"):
-        face_crop = mtcnn.forward(imgs[0])
-        ci_crop = mtcnn.forward(imgs[1])
-        faces_extracted.append([face_crop, ci_crop])
+    valid_images = []
+    for i, imgs in enumerate(tqdm(images, desc="Extrayendo rostros")):
+        face_crop = mtcnn(imgs[0])
+        ci_crop = mtcnn(imgs[1])
+        if face_crop is not None:
+            if drh.es_rostro_humano(imgs[0], classification_model, transform, device):
+                face_boxes, _ = mtcnn.detect(imgs[0])
+                if face_boxes is not None:
+                    face_box = face_boxes[0]
+                    # checamos si la imagen tiene fondo blanco
+                    if fd.is_white_background(cv2.cvtColor(np.array(imgs[0]), cv2.COLOR_RGB2BGR), face_box):
+                        faces_extracted.append([face_crop, ci_crop])
+                        valid_images.append(imgs)
+                    else:
+                        print(f"La imagen {faces_cis_paths[i][0]} no tiene fondo blanco")
+                else:
+                    print(f"No se pudo detectar el rostro en la imagen {faces_cis_paths[i][0]}")
+            else:
+                print(f"La imagen {faces_cis_paths[i][0]} no contiene un rostro humano")
+        else:
+            print(f"No se pudo detectar el rostro en la imagen {faces_cis_paths[i][0]}")
 
     # Obtener embeddings de las caras
     encoder = InceptionResnetV1(pretrained='vggface2', classify=False, device=device).eval()
@@ -77,7 +99,6 @@ def main(device, path_faces, path_cis):
         results.append([faces_extracted[i][0], faces_extracted[i][1], distance])
 
     showResultsUI(results)
-
 
 if __name__ == "__main__":
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
