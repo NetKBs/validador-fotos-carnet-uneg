@@ -5,10 +5,10 @@ from tkinter import filedialog
 import os
 import re
 import modulos.manejador_de_errores as M_ERRORS
+from tqdm import tqdm
 
 def proccessImage(img):
-    
-    sizes = (160, 160)
+    sizes = (400, 400)
     img = img.convert("RGB")
     exif = img.getexif()
     orientation = exif.get(274, 1)  # Valor predeterminado: 1 (sin rotación)
@@ -22,9 +22,9 @@ def proccessImage(img):
 
     image_resize = img.resize((sizes), Image.LANCZOS)
     buffer = BytesIO()
-    image_resize.save(buffer, format="PNG")
-  
-    return Image.open(buffer)
+    image_resize.save(buffer, format="JPEG", quality=50)
+    
+    return image_resize
 
 def openImages(face_path, ci_path):
     """
@@ -92,19 +92,20 @@ def loadImages(faces_path, cis_path):
     cis_only = set(list_cis.keys()) - set(list_faces.keys())
     common_files = set(list_faces.keys()) & set(list_cis.keys())
 
+    # Generar errores
     for face in faces_only:
         M_ERRORS.Errors.faces.withoutCIPair(list_faces[face])
 
     for ci in cis_only:
         M_ERRORS.Errors.cis.withoutFacePair(list_cis[ci])
          
+    # Cargar imagenes
     list_pair = []
-    for file in common_files:
+    for file in tqdm(common_files, "Cargando imagenes"):
        result = openImages(faces_path + '/' + list_faces[file], cis_path + '/' + list_cis[file])
        face_proccessed = proccessImage(result[0])
        ci_proccessed = proccessImage(result[1])
        list_pair.append({"face" : [face_proccessed, list_faces[file]], "ci":[ci_proccessed, list_cis[file]]})
-       #list_pair.append({"face" : [result[0], list_faces[file]], "ci":[result[1], list_cis[file]]})
 
     return list_pair
     
