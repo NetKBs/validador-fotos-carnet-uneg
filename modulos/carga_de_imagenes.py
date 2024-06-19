@@ -8,6 +8,16 @@ import modulos.manejador_de_errores as M_ERRORS
 from tqdm import tqdm
 
 def proccessImage(img):
+    """
+        Procesa una imagen al redimensionarla a un tamaño especificado, rotándola según la orientación EXIF,
+        y guardándola como un archivo JPEG con una calidad especificada.
+
+        Parámetros:
+            img (PIL.Image.Image): La imagen a procesar.
+
+        Retorna:
+            PIL.Image.Image: La imagen procesada.
+    """
     sizes = (400, 400)
     img = img.convert("RGB")
     exif = img.getexif()
