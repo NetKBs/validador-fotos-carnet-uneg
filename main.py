@@ -3,7 +3,7 @@ from facenet_pytorch import MTCNN
 import numpy as np
 import cv2
 import modulos.carga_de_imagenes as cargaIMG
-import modulos.guardado_log as Log
+import modulos.guardado_datos as save
 import modulos.fondo_blanco as fd
 import modulos.comparar_rostros as cr
 import modulos.manejador_de_errores as M_ERRORS
@@ -24,7 +24,7 @@ def main(device):
         image_size=160,
         device=device
     )
-
+ 
     # Bucle para recorrer el listado de imágenes y filtrarlas
     filtered_images = []
 
@@ -63,16 +63,13 @@ def main(device):
         if not cr.comparateFaces(face, ci, umbral, device):
             errorHandler.facesNotMatch(image['face'][1], image['ci'][1])
             continue
-        
-        ##
-        # RESTO DE VALIDACIONES ABAJO...
-        ##
+                
         filtered_images.append(image)
 
-    
+    save.saveResults(filtered_images)
 
 if __name__ == "__main__":
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print('Running on device: {}'.format(device))
-    Log.initLog()
-    main(None)
+    save.initLog()
+    main(device)

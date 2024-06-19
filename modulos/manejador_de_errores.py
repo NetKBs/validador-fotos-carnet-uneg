@@ -1,5 +1,5 @@
 import os.path
-from modulos.guardado_log import saveInLog
+from modulos.guardado_datos import saveInLog
 
 class FaceErrors:
     """
@@ -27,6 +27,9 @@ class FaceErrors:
 
     def withoutFace(self, imageName):
         saveInLog(f"Foto {imageName} no tiene rostro.")
+        
+    def multipleFaces(self, imageName):
+        saveInLog(f"Foto {imageName} tiene multiples rostros.")
 
 class CIErrors:
     """
@@ -54,6 +57,9 @@ class CIErrors:
 
     def withoutFace(self, imageName):
         saveInLog(f"Cedula {imageName} no tiene rostro.")
+        
+    def multipleFaces(self, imageName):
+        saveInLog(f"Cedula {imageName} tiene multiples rostros.")
 
 
 class Errors:
