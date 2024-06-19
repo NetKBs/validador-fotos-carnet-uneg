@@ -14,33 +14,10 @@ Este proceso de validación y comparación garantiza que la foto del carnet sea 
 Para la ejecución del proyecto se necesitan las siguientes dependencias
 - facenet_pytorch
 - numpy
-- matplotlib `opcional` `requerido en la demo`
 - pillow
 - scipy
 - tqdm
 - tkinter
-
-
-
-    
-## Lista de tareas (módulos a desarrollar)
-
-- [ ] Modulo para cargar las fotos con su par cédula
-
-- [ ] Modulo para redimensionar y recortar la foto de la persona y cédulas.
-
-- [ ] Modulo para extraer y verificar número de cédula
-
-- [ ] Modulo para verificar si la persona tiene gorra/sombrero/etc
-
-- [ ] Modulo para verificar el fondo blanco. 
-
-- [x] Modulo para extraer rostros
-
-- [ ] Modulo verificar el rostro de la persona y cédula (sean humanos)
-
-- [ ] Modulo para para comparar la cédula y la persona
-
-- [ ] Modulo para el manejo de errores.
+- opencv-python
 
 
