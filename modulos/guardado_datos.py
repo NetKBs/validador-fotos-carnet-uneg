@@ -45,4 +45,4 @@ def saveResults(filtered_images):
     with open("resultados.txt", "a") as f:
         f.write(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")+"\n")
         for image in tqdm(filtered_images, "Guardando resultados"):
-            f.write(f"Par {image["face"][1]} y {image['ci'][1]} pasaron las pruebas\n")
+            f.write(f"Par {image['face'][1]} y {image['ci'][1]} pasaron las pruebas\n")
