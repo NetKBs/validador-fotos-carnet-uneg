@@ -43,6 +43,8 @@ class CIErrors:
         - notValidFace(self, imageName): Registra un error cuando el rostro de la cédula no es válido.
         - withoutFace(self, imageName): Registra un error cuando la cédula no tiene un rostro.
         - multipleFaces(self, imageName): Registra un error cuando la cédula tiene multiples rostros.
+        - notValidCINumber(self, imageName): Registra un error cuando el número de cedula de la imagen no coincide con su nombre de archivo
+        - couldNotExtractNumber(self, imageName): Registra un error cuando no se pudo extraer el número de cedula de la imagen
     """
 
     def withoutFacePair(self, imageName):
@@ -63,6 +65,11 @@ class CIErrors:
     def multipleFaces(self, imageName):
         saveInLog(f"Cedula {imageName} tiene multiples rostros.")
 
+    def notValidCINumber(self, imageName):
+        saveInLog(f"El número de cedula de la imagen {imageName} no coincide con su nombre de archivo")
+        
+    def couldNotExtractNumber(self, imageName):
+        saveInLog(f"No se pudo extraer el número de cedula de la imagen {imageName}")
 
 class Errors:
     """

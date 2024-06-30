@@ -2,7 +2,17 @@ from PIL import Image
 from io import BytesIO
 
 def proccessImage(img):
- 
+    """
+        Procesa una imagen redimensionándola a un tamaño específico, corrigiendo su orientación, y devolviendo la imagen procesada.
+
+        Parámetros:
+            img (PIL.Image.Image): La imagen a procesar.
+
+        Devoluciones:
+            PIL.Image.Image: La imagen procesada.
+
+    """
+    
     sizes = (400, 400)   
     img = img.convert("RGB")
     exif = img.getexif()
