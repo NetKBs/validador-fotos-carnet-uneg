@@ -11,6 +11,7 @@ class FaceErrors:
         - withHat(self, imageName): Registra un error cuando la foto tiene un sombrero.
         - notValidFace(self, imageName): Registra un error cuando el rostro de la foto no es válido.
         - withoutFace(self, imageName): Registra un error cuando la foto no tiene un rostro.
+        - multipleFaces(self, imageName): Registra un error cuando la foto tiene multiples rostros.
     """
 
     def withoutWhiteBg(self, imageName):
@@ -41,6 +42,7 @@ class CIErrors:
         - numberNotMatch(self, imageName): Registra un error cuando el número de la cédula no coincide con el asignado al archivo.
         - notValidFace(self, imageName): Registra un error cuando el rostro de la cédula no es válido.
         - withoutFace(self, imageName): Registra un error cuando la cédula no tiene un rostro.
+        - multipleFaces(self, imageName): Registra un error cuando la cédula tiene multiples rostros.
     """
 
     def withoutFacePair(self, imageName):
@@ -72,9 +74,13 @@ class Errors:
 
         Métodos:
         - facesNotMatch(self, imageName, imageName): Registra un error cuando el rostro de la foto y la cédula no coinciden.
+        - nameFileInvalid(self, imageName): Registra un error cuando el nombre de archivo no es valido.
     """
     faces = FaceErrors()
     cis = CIErrors()
 
     def facesNotMatch(self, imageFaceName, imageCIName):
         saveInLog(f"Rostro de {imageFaceName} y {imageCIName} no coinciden.")
+        
+    def nameFileInvalid(self, imageName):
+        saveInLog(f"Nombre de archivo {imageName} no es valido.")
