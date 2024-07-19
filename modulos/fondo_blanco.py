@@ -27,10 +27,17 @@ def isWhiteBackground(image, face_box):
     x1, y1, x2, y2 = map(int, face_box)
     cv2.rectangle(mask, (x1, y1), (x2, y2), 0, -1)
 
+    # Estimar la posición de la camisa (debajo del rostro)
+    shirt_box = (x1, y2, x2, y2 + int((y2 - y1) * 0.5))
+
+    # Excluir el área de la camisa
+    cv2.rectangle(mask, (shirt_box[0], shirt_box[1]), (shirt_box[2], shirt_box[3]), 0, -1)
+
     # Calculate the percentage of white pixels
     white_pixels = cv2.countNonZero(mask)
-    total_pixels = image.shape[0] * image.shape[1] - (x2 - x1) * (y2 - y1)
+    total_pixels = image.shape[0] * image.shape[1] - (x2 - x1) * (y2 - y1) - (shirt_box[2] - shirt_box[0]) * (shirt_box[3] - shirt_box[1])
     white_ratio = white_pixels / total_pixels
 
     # Determine if the background is predominantly white
     return white_ratio > 0.3 # lo correcto es 0.5 pendiente 
+
