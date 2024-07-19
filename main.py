@@ -63,6 +63,7 @@ def main(device):
         # cedula valida
         cis_num_extracted = vc.getCisNumber(images[i]["ci"][0])
         if cis_num_extracted is None:
+            print(f"Error al extraer el número de la cedula {images[i]['ci'][1]}")
             errorHandler.cis.couldNotExtractNumber(images[i]["ci"][1])
             continue
         

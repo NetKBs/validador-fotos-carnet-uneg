@@ -10,7 +10,7 @@ def preProccessing(image_pillow):
     # la preparamos para manipularla con OpenCV
     image = np.array(image_pillow)
     # Convertir a escala de grises
-    gray_image = color.rgb2gray(image_pillow)
+    gray_image = color.rgb2gray(image)
     # Aplicar umbral adaptativo para binarizar la imagen
     binary_image = gray_image > filters.threshold_otsu(gray_image)
     return binary_image
