@@ -3,7 +3,8 @@ imagenes/
 images/
 demo/images
 
-*.txt
+log.txt
+resultados.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
