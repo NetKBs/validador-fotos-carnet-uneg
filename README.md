@@ -10,14 +10,5 @@ Este proceso de validación y comparación garantiza que la foto del carnet sea 
 
 
 ## Dependencias
-
-Para la ejecución del proyecto se necesitan las siguientes dependencias
-- facenet_pytorch
-- numpy
-- pillow
-- scipy
-- tqdm
-- tkinter
-- opencv-python
-
-
+Instalar el requirements.txt con 
+`pip install -r requirements.txt`
